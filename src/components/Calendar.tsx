@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useBookingData } from '../hooks/useBookingData';
 import { CalendarDay } from './CalendarDay';
 import {
   format,
@@ -8,38 +7,49 @@ import {
   startOfMonth,
   startOfWeek,
   endOfWeek,
-  eachDayOfInterval
+  eachDayOfInterval,
+  startOfDay,
+  isWithinInterval,
 } from 'date-fns';
 import { pl } from 'date-fns/locale';
-import type {DayStatus} from '../types/booking';
+import type { DayStatus } from '../types/booking';
+
+interface SelectedRange {
+  start: Date;
+  end: Date;
+}
 
 interface CalendarProps {
   title: string;
-  icalToken: string;
+  apartmentKey: string;
+  getDayStatuses: (apartmentKey: string, year: number, month: number) => DayStatus[];
+  refetch: () => void;
+  loading: boolean;
+
+  isAdmin?: boolean;
+  selectedRange?: SelectedRange | null;
+  onDayClick?: (apartmentKey: string, dayStatus: DayStatus) => void;
 }
 
 const WEEKDAYS = ['Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob', 'Ndz'];
 
-export function Calendar({ title, icalToken }: CalendarProps) {
+export function Calendar({
+                           title,
+                           apartmentKey,
+                           getDayStatuses,
+                           refetch,
+                           loading,
+                           isAdmin = false,
+                           selectedRange = null,
+                           onDayClick,
+                         }: CalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
-
-  const extractToken = (urlOrToken: string): string => {
-    if (urlOrToken.includes('?t=')) {
-      return urlOrToken.split('?t=')[1];
-    }
-    return urlOrToken;
-  };
-
-  const token = extractToken(icalToken);
-  const proxyUrl = token ? `/api/ical/v1/export?t=${icalToken}` : ''
-  const { loading, error, getDayStatuses, refetch } = useBookingData(proxyUrl);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
 
-  const dayStatuses = getDayStatuses(year, month);
+  const dayStatuses = getDayStatuses(apartmentKey, year, month);
 
-  // Dodajemy dni z poprzedniego i następnego miesiąca dla pełnych tygodni
   const monthStart = startOfMonth(currentDate);
   const calendarStart = startOfWeek(monthStart, { weekStartsOn: 1 });
   const calendarEnd = endOfWeek(dayStatuses[dayStatuses.length - 1]?.date || monthStart, { weekStartsOn: 1 });
@@ -61,6 +71,14 @@ export function Calendar({ title, icalToken }: CalendarProps) {
       isOccupied: false,
       bookings: [],
     };
+  };
+
+  const isDateInSelectedRange = (date: Date) => {
+    if (!selectedRange) return false;
+    const d = startOfDay(date);
+    const s = startOfDay(selectedRange.start);
+    const e = startOfDay(selectedRange.end);
+    return isWithinInterval(d, { start: s, end: e });
   };
 
   return (
@@ -88,9 +106,6 @@ export function Calendar({ title, icalToken }: CalendarProps) {
         </div>
       </div>
 
-      {loading && <div className="loading">Ładowanie rezerwacji...</div>}
-      {error && <div className="error">{error}</div>}
-
       <div className="calendar-grid">
         <div className="weekdays">
           {WEEKDAYS.map((day) => (
@@ -100,13 +115,24 @@ export function Calendar({ title, icalToken }: CalendarProps) {
           ))}
         </div>
         <div className="days">
-          {allDays.map((date) => (
-            <CalendarDay
-              key={date.toISOString()}
-              dayStatus={getDayStatusForDate(date)}
-              isCurrentMonth={date.getMonth() === month}
-            />
-          ))}
+          {allDays.map((date) => {
+            const dayStatus = getDayStatusForDate(date);
+
+            return (
+              <CalendarDay
+                key={date.toISOString()}
+                dayStatus={dayStatus}
+                isCurrentMonth={date.getMonth() === month}
+                isAdmin={isAdmin}
+                isSelected={isDateInSelectedRange(date)}
+                onClick={
+                  onDayClick
+                    ? () => onDayClick(apartmentKey, dayStatus)
+                    : undefined
+                }
+              />
+            );
+          })}
         </div>
       </div>
 
@@ -125,7 +151,7 @@ export function Calendar({ title, icalToken }: CalendarProps) {
         </div>
         <div className="legend-item">
           <span className="legend-color checkout"></span>
-          <span>Wymeldowanie </span>
+          <span>Wymeldowanie 🚪</span>
         </div>
         <div className="legend-item">
           <span className="legend-color checkout-checkin"></span>

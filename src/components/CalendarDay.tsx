@@ -2,8 +2,13 @@ import type {DayStatus, DayType} from '../types/booking';
 import { format } from 'date-fns';
 
 interface CalendarDayProps {
-  dayStatus: DayStatus;
-  isCurrentMonth: boolean;
+  dayStatus: DayStatus
+  isCurrentMonth: boolean
+
+  isAdmin?: boolean
+  isSelected?: boolean
+  onClick?: () => void
+  isDisabled?: boolean
 }
 
 function getDayType(dayStatus: DayStatus): DayType {
@@ -45,34 +50,58 @@ function getTooltipText(dayStatus: DayStatus): string {
 
   switch (dayType) {
     case 'checkout-checkin':
-      return `${dateStr}\n Wymeldowanie i zameldowanie`;
+      return `${dateStr}\nWymeldowanie i zameldowanie`;
     case 'checkin':
       return `${dateStr}\n✅ Zameldowanie gości`;
     case 'checkout':
-      return `${dateStr}\n Wymeldowanie gości`;
+      return `${dateStr}\n🚪 Wymeldowanie gości`;
     case 'occupied':
-      return `${dateStr}\n Zajęty`;
+      return `${dateStr}\n⛔ Zajęty`;
     default:
-      return `${dateStr}\n Dostępny`;
+      return `${dateStr}\n✅ Dostępny`;
   }
 }
 
-export function CalendarDay({ dayStatus, isCurrentMonth }: CalendarDayProps) {
+export function CalendarDay({
+                              dayStatus,
+                              isCurrentMonth,
+                              isAdmin = false,
+                              isSelected = false,
+                              onClick,
+                            }: CalendarDayProps) {
   const dayType = getDayType(dayStatus);
-  const className = getDayClassName(dayType, isCurrentMonth);
+  const baseClassName = getDayClassName(dayType, isCurrentMonth);
   const tooltip = getTooltipText(dayStatus);
 
+  const isPast = () => {
+    const today = new Date();
+    return dayStatus.date < today;
+  }
+
   return (
-    <div className={className} title={tooltip}>
+    <div
+      className={[
+        baseClassName,
+        isSelected ? 'selected' : '',
+        isAdmin  ? 'admin-clickable' : '',
+        isPast() ? 'day-disabled' : '',
+      ].filter(Boolean).join(' ')}
+      onClick={isPast() ? undefined : onClick}
+      title={tooltip}
+      role={isAdmin ? 'button' : undefined}
+      tabIndex={isAdmin ? 0 : undefined}
+    >
       <span className="day-number">{format(dayStatus.date, 'd')}</span>
+
       {dayType === 'checkout-checkin' && (
         <div className="day-indicator">
-          <span className="indicator-checkout"></span>
+          <span className="indicator-checkout">🚪</span>
           <span className="indicator-checkin">✅</span>
         </div>
       )}
+
       {dayType === 'checkin' && <span className="day-icon">✅</span>}
-      {dayType === 'checkout' && <span className="day-icon"></span>}
+      {dayType === 'checkout' && <span className="day-icon">🚪</span>}
     </div>
   );
 }

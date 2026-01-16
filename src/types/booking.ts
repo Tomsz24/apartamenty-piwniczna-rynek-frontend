@@ -1,9 +1,28 @@
+
 export interface Booking {
   id: string;
-  summary: string;
   startDate: Date;
   endDate: Date;
-  guestName?: string;
+  source: 'manual' | 'external';
+  note?: string;
+}
+
+export interface BookingFromApi {
+  id: string;
+  startDate: string;
+  endDate: string;
+  source: 'manual' | 'external';
+  note?: string;
+}
+
+export interface ApartmentData {
+  apartmentId: string;
+  apartmentName: string;
+  bookings: BookingFromApi[];
+}
+
+export interface CalendarsResponse {
+  [key: string]: ApartmentData;
 }
 
 export interface DayStatus {

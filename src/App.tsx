@@ -1,32 +1,30 @@
-import { Calendar } from './components/Calendar';
-import './App.css';
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { AuthProvider } from './context/AuthContext'
+import { Home } from './pages/Home'
+import { AdminLogin } from './pages/admin/AdminLogin'
+import { ProtectedRoute } from './components/ProtectedRoute'
+import { AdminDashboard } from './pages/admin/AdminDashboard'
+import './App.css'
 
 function App() {
-  const apartment1Token = import.meta.env.VITE_APARTMENT_1_ICAL_TOKEN || '';
-  const apartment2Token = import.meta.env.VITE_APARTMENT_2_ICAL_TOKEN || '';
-
   return (
-    <div className="app">
-      <header className="app-header">
-        <h1>🏠 Kalendarz Rezerwacji Apartamentów Piwniczna Rynek</h1>
-      </header>
-
-      <main className="calendars-container">
-        <Calendar
-          title="Apartament z widokiem na góry"
-          icalToken={apartment1Token}
-        />
-        <Calendar
-          title="Apartament z widokiem na rynek"
-          icalToken={apartment2Token}
-        />
-      </main>
-
-      <footer className="app-footer">
-        <p>Dane pobierane z Booking.com</p>
-      </footer>
-    </div>
-  );
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/admin" element={<AdminLogin />} />
+          <Route
+            path="/admin/dashboard"
+            element={
+              <ProtectedRoute>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
+  )
 }
 
-export default App;
+export default App

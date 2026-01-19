@@ -10,7 +10,7 @@ import { AdminBookingForm } from '../../components/AdminBookingForm'
 
 type SelectedRange = { start: Date; end: Date }
 
-const API_BASE = 'http://localhost:3000'
+const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://localhost:3000'
 
 function toDateInput(d: Date) {
   return format(d, 'yyyy-MM-dd')

@@ -5,7 +5,7 @@ export interface Booking {
   endDate: Date;
   source: 'manual' | 'external';
   note?: string;
-  externalId?: string;
+  externalId: string;
 }
 
 export interface BookingFromApi {
@@ -14,7 +14,7 @@ export interface BookingFromApi {
   endDate: string;
   source: 'manual' | 'external';
   note?: string;
-  externalId?: string;
+  externalId: string;
 }
 
 export interface ApartmentData {

@@ -71,7 +71,7 @@ export function AdminBookingForm({
     if (mode === 'edit' && selectedBooking && isEditingExternal) {
       await upsertExternalNote({
         apartmentKey: selectedApartmentKey,
-        externalId: selectedBooking.externalId || '',
+        externalId: selectedBooking.externalId,
         note: note.trim(),
       })
       return
@@ -103,7 +103,7 @@ export function AdminBookingForm({
     if (selectedBooking.source === 'external') {
       await deleteExternalNote({
         apartmentKey: selectedApartmentKey,
-        externalId: selectedBooking.id,
+        externalId: selectedBooking.externalId,
       })
       return
     }

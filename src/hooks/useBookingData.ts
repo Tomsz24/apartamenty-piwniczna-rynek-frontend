@@ -35,6 +35,7 @@ function parseBookings(apiBookings: BookingFromApi[]): Booking[] {
     endDate: new Date(booking.endDate),
     source: booking.source,
     note: booking.note,
+    externalId: booking.externalId,
   }));
 }
 

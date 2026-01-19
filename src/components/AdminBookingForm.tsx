@@ -38,6 +38,9 @@ interface AdminBookingFormProps {
   }) => Promise<void>
 
   deleteBooking: (bookingId: string) => Promise<void>
+
+  upsertExternalNote: (input: { apartmentKey: string; externalId: string; note: string }) => Promise<void>
+  deleteExternalNote: (input: { apartmentKey: string; externalId: string }) => Promise<void>
 }
 
 export function AdminBookingForm({
@@ -57,13 +60,23 @@ export function AdminBookingForm({
                                    createBooking,
                                    updateBooking,
                                    deleteBooking,
+                                   upsertExternalNote,
+                                   deleteExternalNote,
                                  }: AdminBookingFormProps) {
   const title = mode === 'edit' ? 'Edycja rezerwacji' : 'Dodaj rezerwację'
   const canSave = Boolean(selectedApartmentKey && startDate && endDate && !validationError)
+  const isEditingExternal = mode === 'edit' && selectedBooking?.source === 'external'
 
-  console.log('Can save? ',canSave);
-  console.log('Validation error: ',validationError);
   const handleSave = async () => {
+    if (mode === 'edit' && selectedBooking && isEditingExternal) {
+      await upsertExternalNote({
+        apartmentKey: selectedApartmentKey,
+        externalId: selectedBooking.externalId || '',
+        note: note.trim(),
+      })
+      return
+    }
+
     if (!canSave) return
 
     if (mode === 'edit' && selectedBooking) {
@@ -86,6 +99,15 @@ export function AdminBookingForm({
 
   const handleDelete = async () => {
     if (!selectedBooking) return
+
+    if (selectedBooking.source === 'external') {
+      await deleteExternalNote({
+        apartmentKey: selectedApartmentKey,
+        externalId: selectedBooking.id,
+      })
+      return
+    }
+
     await deleteBooking(selectedBooking.id)
   }
 
@@ -112,17 +134,27 @@ export function AdminBookingForm({
       <div className="row">
         <label className="field">
           <span>Data od</span>
-          <input type="date" value={startDate} onChange={(e) => onChangeStartDate(e.target.value)} />
+          <input
+            type="date"
+            value={startDate}
+            disabled={isEditingExternal}
+            onChange={(e) => onChangeStartDate(e.target.value)}
+          />
         </label>
 
         <label className="field">
           <span>Data do</span>
-          <input type="date" value={endDate} onChange={(e) => onChangeEndDate(e.target.value)} />
+          <input
+            type="date"
+            value={endDate}
+            disabled={isEditingExternal}
+            onChange={(e) => onChangeEndDate(e.target.value)}
+          />
         </label>
       </div>
 
       <label className="field">
-        <span>Notatka (opcjonalnie)</span>
+        <span>Notatka</span>
         <textarea value={note} onChange={(e) => onChangeNote(e.target.value)} rows={4} />
       </label>
 
@@ -133,11 +165,16 @@ export function AdminBookingForm({
 
         {mode === 'edit' && selectedBooking && (
           <button className="danger" onClick={handleDelete}>
-            Usuń
+            {selectedBooking.source === 'external' ? 'Usuń notatkę' : 'Usuń'}
           </button>
         )}
 
-        <button className={'primary'} onClick={handleSave} disabled={!canSave} title={!canSave ? 'Popraw dane' : undefined}>
+        <button
+          className="primary"
+          onClick={handleSave}
+          disabled={isEditingExternal ? note.trim().length === 0 : !canSave}
+          title={!canSave ? 'Popraw dane' : undefined}
+        >
           {mode === 'edit' ? 'Zapisz zmiany' : 'Dodaj rezerwację'}
         </button>
       </div>

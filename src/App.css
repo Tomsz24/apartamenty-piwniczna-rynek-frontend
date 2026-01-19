@@ -664,3 +664,22 @@ body {
     transform: none;
     box-shadow: none;
 }
+
+.info-message {
+    background: rgba(13, 110, 253, 0.12);
+    border: 1px solid rgba(13, 110, 253, 0.25);
+    color: #0b3d91;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+.note {
+    min-width: 400px;
+    background-color: #FFF;
+    border-radius: 16px;
+    margin-top: 28px;
+    padding: 24px;
+    font-weight: bolder;
+    text-align: center;
+}

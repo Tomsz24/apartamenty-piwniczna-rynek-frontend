@@ -10,6 +10,8 @@ import { AdminBookingForm } from '../../components/AdminBookingForm'
 
 type SelectedRange = { start: Date; end: Date }
 
+const API_BASE = 'http://localhost:3000'
+
 function toDateInput(d: Date) {
   return format(d, 'yyyy-MM-dd')
 }
@@ -51,9 +53,18 @@ export function AdminDashboard() {
   const [startDate, setStartDate] = useState<string>(toDateInput(today))
   const [endDate, setEndDate] = useState<string>(toDateInput(today))
   const [note, setNote] = useState<string>('')
-  const [information, setInformation] = useState<string | null>(null)
 
-  const resetForm = () => {
+  const authFetch = async (input: string, init: RequestInit = {}) => {
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+      ...(init.headers ?? {}),
+    }
+    // @ts-ignore
+    if (accessToken) headers['Authorization'] = `Bearer ${accessToken}`
+    return fetch(input, { ...init, headers })
+  }
+
+  const resetToToday = () => {
     const d = new Date()
     setMode('create')
     setSelectedBooking(null)
@@ -63,27 +74,12 @@ export function AdminDashboard() {
     setNote('')
   }
 
-  const showInformation = (message: string) => {
-    setInformation(message)
-    setTimeout(() => setInformation(null), 5000)
-  }
-
-  const authFetch = async (input: string, init: RequestInit = {}) => {
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json',
-      ...(init.headers ?? {}),
-    }
-    if (accessToken) { // @ts-ignore
-      headers['Authorization'] = `Bearer ${accessToken}`
-    }
-    return fetch(input, { ...init, headers })
-  }
-
+  // --- MANUAL BOOKINGS ---
   const createBooking = async (input: { apartmentKey: string; startDate: string; endDate: string; note?: string }) => {
     const apartmentId = apartments[input.apartmentKey]?.apartmentId
     if (!apartmentId) throw new Error('Brak apartmentId dla wybranego apartamentu')
 
-    const res = await authFetch(`${import.meta.env.VITE_BACKEND_API_URL}/api/calendars/bookings`, {
+    const res = await authFetch(`${API_BASE}/api/calendars/bookings`, {
       method: 'POST',
       body: JSON.stringify({
         apartmentId,
@@ -94,16 +90,10 @@ export function AdminDashboard() {
       }),
     })
 
-
-    if (!res.ok) {
-      showInformation('Wsytąpił Błąd 🛑')
-      throw new Error(`HTTP ${res.status}`)
-    }
-
-    showInformation('Dodano rezerwację ✅')
-    resetForm()
-    refetch()
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    await refetch()
   }
+
   const updateBooking = async (input: {
     bookingId: string
     apartmentKey: string
@@ -130,49 +120,63 @@ export function AdminDashboard() {
 
     if (Object.keys(body).length === 0) return
 
-    const res = await authFetch(`${import.meta.env.VITE_BACKEND_API_URL}/api/calendars/bookings/${input.bookingId}`, {
+    const res = await authFetch(`${API_BASE}/api/calendars/bookings/${input.bookingId}`, {
       method: 'PUT',
       body: JSON.stringify(body),
     })
 
+    if (res.status === 409) throw new Error('CONFLICT')
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
 
-    if (res.status === 409) {
-      showInformation('Wsytąpił Błąd 🛑')
-      throw new Error('CONFLICT')
-    }
-    if (!res.ok) {
-      showInformation('Wsytąpił Błąd 🛑')
-      throw new Error(`HTTP ${res.status}`)
-    }
-
-    showInformation('Zaktualizowano rezerwację ✅')
-    resetForm()
-    refetch()
+    await refetch()
   }
 
   const deleteBooking = async (bookingId: string) => {
-    const res = await authFetch(`${import.meta.env.VITE_BACKEND_API_URL}/api/calendars/bookings/${bookingId}`, {
+    const res = await authFetch(`${API_BASE}/api/calendars/bookings/${bookingId}`, {
       method: 'DELETE',
     })
 
-    if (!res.ok && res.status !== 204) {
-      showInformation('Wsytąpił Błąd 🛑')
-      throw new Error(`HTTP ${res.status}`)
-    }
-
-    showInformation('Usunieto rezerwację ✅')
-    resetForm()
-    refetch()
+    if (!res.ok && res.status !== 204) throw new Error(`HTTP ${res.status}`)
+    await refetch()
   }
 
-  const resetToToday = () => {
-    const d = new Date()
-    setMode('create')
-    setSelectedBooking(null)
-    setSelectedRange({ start: d, end: d })
-    setStartDate(toDateInput(d))
-    setEndDate(toDateInput(d))
-    setNote('')
+  // --- EXTERNAL NOTES ---
+  const upsertExternalNote = async (input: {
+    apartmentKey: string
+    externalId: string
+    note: string
+  }) => {
+    const apartmentId = apartments[input.apartmentKey]?.apartmentId
+    if (!apartmentId) throw new Error('Brak apartmentId dla wybranego apartamentu')
+
+    const res = await authFetch(`${API_BASE}/api/calendars/external-notes`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        apartmentId,
+        externalId: input.externalId,
+        note: input.note,
+        createdBy: 'admin',
+      }),
+    })
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    await refetch()
+  }
+
+  const deleteExternalNote = async (input: { apartmentKey: string; externalId: string }) => {
+    const apartmentId = apartments[input.apartmentKey]?.apartmentId
+    if (!apartmentId) throw new Error('Brak apartmentId dla wybranego apartamentu')
+
+    const res = await authFetch(`${API_BASE}/api/calendars/external-notes`, {
+      method: 'DELETE',
+      body: JSON.stringify({
+        apartmentId,
+        externalId: input.externalId,
+      }),
+    })
+
+    if (!res.ok && res.status !== 204) throw new Error(`HTTP ${res.status}`)
+    await refetch()
   }
 
   const handleLogout = async () => {
@@ -228,15 +232,10 @@ export function AdminDashboard() {
     const bookings = apartments[selectedApartmentKey]?.bookings ?? []
     for (const b of bookings) {
       if (mode === 'edit' && selectedBooking?.id && b.id === selectedBooking.id) continue
-
       const bStart = startOfDay(b.startDate)
       const bEnd = startOfDay(b.endDate)
-
-      if (overlapsAllowingTouch(start, end, bStart, bEnd)) {
-        return b
-      }
+      if (overlapsAllowingTouch(start, end, bStart, bEnd)) return b
     }
-
     return null
   }
 
@@ -253,7 +252,7 @@ export function AdminDashboard() {
   }
 
   return (
-    <div className="admin-dashboard">
+    <div className="app admin-page">
       <header className="admin-header">
         <h1>Panel Administracyjny</h1>
         <button onClick={handleLogout} className="logout-btn">
@@ -304,10 +303,10 @@ export function AdminDashboard() {
           createBooking={createBooking}
           updateBooking={updateBooking}
           deleteBooking={deleteBooking}
+          upsertExternalNote={upsertExternalNote}
+          deleteExternalNote={deleteExternalNote}
         />
       </div>
-
-      {information ? <div className="information-note">{information}</div> : null}
     </div>
   )
 }

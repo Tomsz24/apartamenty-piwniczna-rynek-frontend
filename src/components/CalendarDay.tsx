@@ -1,5 +1,5 @@
 import type {DayStatus, DayType} from '../types/booking';
-import { format } from 'date-fns';
+import {format, startOfDay} from 'date-fns';
 
 interface CalendarDayProps {
   dayStatus: DayStatus
@@ -74,9 +74,12 @@ export function CalendarDay({
   const tooltip = getTooltipText(dayStatus);
 
   const isPast = () => {
-    const today = new Date();
-    return dayStatus.date < today;
+    const todayStart = startOfDay(new Date());
+    const dayStart = startOfDay(dayStatus.date);
+    return dayStart < todayStart;
   }
+
+  const clickable = Boolean(onClick && !isPast());
 
   return (
     <div
@@ -88,8 +91,9 @@ export function CalendarDay({
       ].filter(Boolean).join(' ')}
       onClick={isPast() ? undefined : onClick}
       title={tooltip}
+      aria-disabled={isPast() ? true : undefined}
       role={isAdmin ? 'button' : undefined}
-      tabIndex={isAdmin ? 0 : undefined}
+      tabIndex={clickable ? 0 : undefined}
     >
       <span className="day-number">{format(dayStatus.date, 'd')}</span>
 

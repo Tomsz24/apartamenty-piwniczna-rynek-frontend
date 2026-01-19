@@ -74,7 +74,6 @@ export function AdminDashboard() {
     setNote('')
   }
 
-  // --- MANUAL BOOKINGS ---
   const createBooking = async (input: { apartmentKey: string; startDate: string; endDate: string; note?: string }) => {
     const apartmentId = apartments[input.apartmentKey]?.apartmentId
     if (!apartmentId) throw new Error('Brak apartmentId dla wybranego apartamentu')
@@ -91,6 +90,7 @@ export function AdminDashboard() {
     })
 
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    resetToToday();
     await refetch()
   }
 
@@ -128,6 +128,7 @@ export function AdminDashboard() {
     if (res.status === 409) throw new Error('CONFLICT')
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
 
+    resetToToday();
     await refetch()
   }
 
@@ -137,6 +138,7 @@ export function AdminDashboard() {
     })
 
     if (!res.ok && res.status !== 204) throw new Error(`HTTP ${res.status}`)
+    resetToToday();
     await refetch()
   }
 
@@ -160,6 +162,7 @@ export function AdminDashboard() {
     })
 
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    resetToToday()
     await refetch()
   }
 
@@ -176,6 +179,8 @@ export function AdminDashboard() {
     })
 
     if (!res.ok && res.status !== 204) throw new Error(`HTTP ${res.status}`)
+
+    resetToToday()
     await refetch()
   }
 

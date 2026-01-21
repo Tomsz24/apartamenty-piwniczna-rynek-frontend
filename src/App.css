@@ -581,6 +581,7 @@ body {
     border: 1px solid #ddd;
     background: #fff;
     cursor: pointer;
+    color: black;
 }
 
 .admin-form-actions button.primary {
@@ -682,4 +683,5 @@ body {
     padding: 24px;
     font-weight: bolder;
     text-align: center;
+    color: black;
 }

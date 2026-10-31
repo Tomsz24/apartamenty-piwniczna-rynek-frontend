@@ -69,6 +69,7 @@ export function AdminBookingForm({
 
   const handleSave = async () => {
     if (mode === 'edit' && selectedBooking && isEditingExternal) {
+      if (!selectedBooking.externalId) return
       await upsertExternalNote({
         apartmentKey: selectedApartmentKey,
         externalId: selectedBooking.externalId,
@@ -101,6 +102,7 @@ export function AdminBookingForm({
     if (!selectedBooking) return
 
     if (selectedBooking.source === 'external') {
+      if (!selectedBooking.externalId) return
       await deleteExternalNote({
         apartmentKey: selectedApartmentKey,
         externalId: selectedBooking.externalId,

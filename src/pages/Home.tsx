@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react'
 import { useBookingData } from '../hooks/useBookingData'
 import { Calendar } from '../components/Calendar'
-import type { DayStatus } from '../types/booking'
+import type { DayStatus, GuestCounts } from '../types/booking'
 import { Note } from '../components/Note'
+import { GuestInfo } from '../components/GuestInfo'
 
 type SelectedRange = { start: Date; end: Date }
 
@@ -13,6 +14,7 @@ export function Home() {
   const [selectedApartmentKey, setSelectedApartmentKey] = useState<string>('')
   const [selectedRange, setSelectedRange] = useState<SelectedRange | null>(null)
   const [noteText, setNoteText] = useState<string | null>(null)
+  const [selectedGuests, setSelectedGuests] = useState<GuestCounts | null>(null)
 
   const handleDayClick = (apartmentKey: string, dayStatus: DayStatus) => {
     setSelectedApartmentKey(apartmentKey)
@@ -21,11 +23,13 @@ export function Home() {
     if (!booking) {
       setSelectedRange(null)
       setNoteText(null)
+      setSelectedGuests(null)
       return
     }
 
     setSelectedRange({ start: booking.startDate, end: booking.endDate })
     setNoteText(booking.note ?? null)
+    setSelectedGuests(booking.guests ?? null)
   }
 
   useMemo(() => {
@@ -58,8 +62,9 @@ export function Home() {
         ))}
       </main>
 
-      <div style={{ width: '100%', maxWidth: 1400, marginTop: 16 }}>
-        <Note text={noteText} />
+      <div className="info-panels">
+        <GuestInfo guests={selectedGuests} />
+        {noteText?.trim() && <Note text={noteText} />}
       </div>
     </div>
   )

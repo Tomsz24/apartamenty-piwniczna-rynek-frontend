@@ -34,8 +34,16 @@ function parseBookings(apiBookings: BookingFromApi[]): Booking[] {
     startDate: new Date(booking.startDate),
     endDate: new Date(booking.endDate),
     source: booking.source,
-    note: booking.note,
+    note: booking.note ?? undefined,
     externalId: booking.externalId,
+    guests: {
+      guestCount: booking.guestCount,
+      adults: booking.adults,
+      children: booking.children,
+      childAges: booking.childAges,
+      infants: booking.infants,
+      pets: booking.pets,
+    },
   }));
 }
 
@@ -58,7 +66,9 @@ export function useBookingData(options: UseBookingDataOptions = {}): UseBookingD
         headers['Authorization'] = `Bearer ${accessToken}`;
       }
 
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_API_URL}/api/calendars`, {
+      // Admin gets the full calendar; the public (cleaning crew) view gets dates and notes only.
+      const path = accessToken ? '/api/calendars' : '/api/calendars/public';
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_API_URL}${path}`, {
         headers,
       });
 

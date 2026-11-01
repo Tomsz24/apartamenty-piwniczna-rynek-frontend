@@ -3,18 +3,28 @@ export interface Booking {
   id: string;
   startDate: Date;
   endDate: Date;
-  source: 'manual' | 'external';
+  source?: 'manual' | 'external';
   note?: string;
-  externalId: string;
+  externalId?: string;
+  guests?: GuestCounts;
 }
 
-export interface BookingFromApi {
+export interface GuestCounts {
+  guestCount?: number | null;
+  adults?: number | null;
+  children?: number | null;
+  childAges?: number[] | null;
+  infants?: number | null;
+  pets?: number | null;
+}
+
+export interface BookingFromApi extends GuestCounts {
   id: string;
   startDate: string;
   endDate: string;
-  source: 'manual' | 'external';
-  note?: string;
-  externalId: string;
+  source?: 'manual' | 'external';
+  note?: string | null;
+  externalId?: string;
 }
 
 export interface ApartmentData {

@@ -1,3 +1,26 @@
+:root {
+    /* Paleta z logo apartamentów (ikona aplikacji iOS) */
+    --brand-green: #12302a;
+    --brand-green-light: #1d4a3f;
+    --brand-green-hover: #245a4c;
+    --brand-gold: #c99a45;
+    --brand-gold-soft: rgba(201, 154, 69, 0.18);
+    --brand-cream: #f7f3ea;
+    --text: #1f2a27;
+    --text-muted: #5f6b67;
+    --border: #e3ddd0;
+    --danger: #b4442f;
+    --danger-hover: #983823;
+
+    --day-free-bg: #e7f0ea;
+    --day-free-text: #2f5d4a;
+    --day-occupied-bg: #f6e1d9;
+    --day-occupied-text: #9b3a26;
+    --day-checkin: #3f7d5e;
+    --day-checkout: #c99a45;
+    --day-turnover: #f6ecd3;
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -6,7 +29,7 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(160deg, var(--brand-green) 0%, var(--brand-green-light) 100%);
     min-height: 100vh;
     display: flex;
     justify-content: center;
@@ -32,6 +55,16 @@ body {
     color: white;
     font-size: 2rem;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.app-header h1::after {
+    content: "";
+    display: block;
+    width: 64px;
+    height: 3px;
+    margin: 12px auto 0;
+    border-radius: 2px;
+    background: var(--brand-gold);
 }
 
 .calendars-container {
@@ -61,7 +94,7 @@ body {
 
 .calendar-header h2 {
     font-size: 1.5rem;
-    color: #333;
+    color: var(--text);
     margin-bottom: 16px;
 }
 
@@ -73,7 +106,7 @@ body {
 }
 
 .calendar-nav button {
-    background: #667eea;
+    background: var(--brand-green);
     color: white;
     border: none;
     border-radius: 8px;
@@ -84,13 +117,13 @@ body {
 }
 
 .calendar-nav button:hover {
-    background: #5a6fd6;
+    background: var(--brand-green-hover);
 }
 
 .current-month {
     font-size: 1.2rem;
     font-weight: 600;
-    color: #333;
+    color: var(--text);
     text-transform: capitalize;
 }
 
@@ -100,8 +133,8 @@ body {
 }
 
 .calendar-actions button {
-    background: #f0f0f0;
-    color: #333;
+    background: var(--brand-cream);
+    color: var(--text);
     border: none;
     border-radius: 8px;
     padding: 8px 16px;
@@ -111,7 +144,7 @@ body {
 }
 
 .calendar-actions button:hover {
-    background: #e0e0e0;
+    background: var(--border);
 }
 
 .calendar-actions button:disabled {
@@ -133,7 +166,7 @@ body {
 .weekday {
     text-align: center;
     font-weight: 600;
-    color: #666;
+    color: var(--text-muted);
     font-size: 0.85rem;
     padding: 8px 0;
 }
@@ -157,8 +190,8 @@ body {
     content: "";
     position: absolute;
     inset: 0;
-    background: rgba(255, 193, 7, 0.18);
-    outline: 2px solid rgba(255, 193, 7, 0.9);
+    background: var(--brand-gold-soft);
+    outline: 2px solid var(--brand-gold);
     outline-offset: -2px;
     pointer-events: none;
 }
@@ -186,28 +219,28 @@ body {
 }
 
 .day-free {
-    background: #e8f5e9;
-    color: #2e7d32;
+    background: var(--day-free-bg);
+    color: var(--day-free-text);
 }
 
 .day-occupied {
-    background: #ffebee;
-    color: #c62828;
+    background: var(--day-occupied-bg);
+    color: var(--day-occupied-text);
 }
 
 .day-checkin {
-    background: linear-gradient(135deg, #e8f5e9 50%, #4caf50 50%);
-    color: #1b5e20;
+    background: linear-gradient(135deg, var(--day-free-bg) 50%, var(--day-checkin) 50%);
+    color: var(--day-free-text);
 }
 
 .day-checkout {
-    background: linear-gradient(135deg, #ff9800 50%, #e8f5e9 50%);
-    color: #e65100;
+    background: linear-gradient(135deg, var(--day-checkout) 50%, var(--day-free-bg) 50%);
+    color: #5a3d10;
 }
 
 .day-checkout-checkin {
-    background: linear-gradient(135deg, #ff9800 33%, #fff9c4 33%, #fff9c4 66%, #4caf50 66%);
-    color: #333;
+    background: linear-gradient(135deg, var(--day-checkout) 33%, var(--day-turnover) 33%, var(--day-turnover) 66%, var(--day-checkin) 66%);
+    color: var(--text);
 }
 
 .other-month {
@@ -219,7 +252,7 @@ body {
     flex-wrap: wrap;
     gap: 12px;
     padding-top: 16px;
-    border-top: 1px solid #eee;
+    border-top: 1px solid var(--border);
 }
 
 .legend-item {
@@ -227,7 +260,7 @@ body {
     align-items: center;
     gap: 6px;
     font-size: 0.8rem;
-    color: #666;
+    color: var(--text-muted);
 }
 
 .legend-color {
@@ -237,35 +270,35 @@ body {
 }
 
 .legend-color.free {
-    background: #e8f5e9;
+    background: var(--day-free-bg);
 }
 
 .legend-color.occupied {
-    background: #ffebee;
+    background: var(--day-occupied-bg);
 }
 
 .legend-color.checkin {
-    background: linear-gradient(135deg, #e8f5e9 50%, #4caf50 50%);
+    background: linear-gradient(135deg, var(--day-free-bg) 50%, var(--day-checkin) 50%);
 }
 
 .legend-color.checkout {
-    background: linear-gradient(135deg, #ff9800 50%, #e8f5e9 50%);
+    background: linear-gradient(135deg, var(--day-checkout) 50%, var(--day-free-bg) 50%);
 }
 
 .legend-color.checkout-checkin {
-    background: linear-gradient(135deg, #ff9800 33%, #fff9c4 33%, #fff9c4 66%, #4caf50 66%);
+    background: linear-gradient(135deg, var(--day-checkout) 33%, var(--day-turnover) 33%, var(--day-turnover) 66%, var(--day-checkin) 66%);
 }
 
 .loading {
     text-align: center;
     padding: 20px;
-    color: #667eea;
+    color: var(--brand-cream);
     font-weight: 500;
 }
 
 .error {
-    background: #ffebee;
-    color: #c62828;
+    background: var(--day-occupied-bg);
+    color: var(--day-occupied-text);
     padding: 12px;
     border-radius: 8px;
     margin-bottom: 16px;
@@ -299,7 +332,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(160deg, var(--brand-green) 0%, var(--brand-green-light) 100%);
 }
 
 .login-container {
@@ -314,7 +347,7 @@ body {
 .login-container h1 {
     margin-bottom: 1.5rem;
     text-align: center;
-    color: #333;
+    color: var(--text);
     font-size: 1.5rem;
 }
 
@@ -326,13 +359,13 @@ body {
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 500;
-    color: #555;
+    color: var(--text-muted);
 }
 
 .form-group input {
     width: 100%;
     padding: 0.75rem;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border);
     border-radius: 4px;
     font-size: 1rem;
     box-sizing: border-box;
@@ -340,13 +373,13 @@ body {
 
 .form-group input:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+    border-color: var(--brand-green);
+    box-shadow: 0 0 0 2px var(--brand-gold-soft);
 }
 
 .error-message {
-    background: #fee;
-    color: #c00;
+    background: var(--day-occupied-bg);
+    color: var(--day-occupied-text);
     padding: 0.75rem;
     border-radius: 4px;
     margin-bottom: 1rem;
@@ -356,7 +389,7 @@ body {
 .login-container button {
     width: 100%;
     padding: 0.75rem;
-    background: #667eea;
+    background: var(--brand-green);
     color: white;
     border: none;
     border-radius: 4px;
@@ -366,7 +399,7 @@ body {
 }
 
 .login-container button:hover:not(:disabled) {
-    background: #5a6fd6;
+    background: var(--brand-green-hover);
 }
 
 .login-container button:disabled {
@@ -380,7 +413,8 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 1rem 2rem;
-    background: #333;
+    background: rgba(0, 0, 0, 0.22);
+    border: 1px solid rgba(201, 154, 69, 0.35);
     color: white;
     width: 100%;
     margin-bottom: 1.5rem;
@@ -398,7 +432,7 @@ body {
 
 .logout-btn {
     padding: 0.5rem 1rem;
-    background: #dc3545;
+    background: var(--danger);
     color: white;
     border: none;
     border-radius: 4px;
@@ -408,7 +442,7 @@ body {
 }
 
 .logout-btn:hover {
-    background: #c82333;
+    background: var(--danger-hover);
 }
 
 .loading {
@@ -424,9 +458,9 @@ body {
 }
 
 .day.selected {
-    outline: 2px solid rgba(255, 193, 7, 0.9);
+    outline: 2px solid var(--brand-gold);
     outline-offset: -2px;
-    box-shadow: inset 0 0 0 999px rgba(255, 193, 7, 0.18);
+    box-shadow: inset 0 0 0 999px var(--brand-gold-soft);
 }
 
 
@@ -454,7 +488,7 @@ body {
     align-items: center;
     justify-content: space-between;
     padding: 14px 16px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--border);
 }
 
 .modal-close {
@@ -483,13 +517,13 @@ body {
 
 .field span {
     font-size: 13px;
-    color: #555;
+    color: var(--text-muted);
 }
 
 .field input,
 .field select,
 .field textarea {
-    border: 1px solid #ddd;
+    border: 1px solid var(--border);
     border-radius: 6px;
     padding: 10px 12px;
     font-size: 14px;
@@ -500,26 +534,26 @@ body {
     justify-content: flex-end;
     gap: 10px;
     padding: 14px 16px;
-    border-top: 1px solid #eee;
+    border-top: 1px solid var(--border);
 }
 
 .modal-footer button {
     padding: 10px 12px;
     border-radius: 6px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border);
     background: #fff;
     cursor: pointer;
 }
 
 .modal-footer button.primary {
-    background: #667eea;
-    border-color: #667eea;
+    background: var(--brand-green);
+    border-color: var(--brand-green);
     color: white;
 }
 
 .modal-footer button.danger {
-    background: #dc3545;
-    border-color: #dc3545;
+    background: var(--danger);
+    border-color: var(--danger);
     color: white;
 }
 
@@ -565,7 +599,7 @@ body {
 
 .admin-form-title {
     margin-bottom: 12px;
-    color: #333;
+    color: var(--text);
 }
 
 .admin-form-actions {
@@ -578,21 +612,21 @@ body {
 .admin-form-actions button {
     padding: 10px 12px;
     border-radius: 6px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border);
     background: #fff;
     cursor: pointer;
-    color: black;
+    color: var(--text);
 }
 
 .admin-form-actions button.primary {
-    background: #667eea;
-    border-color: #667eea;
+    background: var(--brand-green);
+    border-color: var(--brand-green);
     color: white;
 }
 
 .admin-form-actions button.danger {
-    background: #dc3545;
-    border-color: #dc3545;
+    background: var(--danger);
+    border-color: var(--danger);
     color: white;
 }
 
@@ -667,9 +701,9 @@ body {
 }
 
 .info-message {
-    background: rgba(13, 110, 253, 0.12);
-    border: 1px solid rgba(13, 110, 253, 0.25);
-    color: #0b3d91;
+    background: var(--brand-gold-soft);
+    border: 1px solid rgba(201, 154, 69, 0.45);
+    color: #5a3d10;
     padding: 10px 12px;
     border-radius: 8px;
     font-size: 0.9rem;
@@ -703,5 +737,5 @@ body {
     padding: 24px;
     font-weight: bolder;
     text-align: center;
-    color: black;
+    color: var(--text);
 }
